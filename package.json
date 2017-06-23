@@ -1,0 +1,14 @@
+{
+  "name": "progress-buffer",
+  "version": "0.0.1",
+  "description": "Multiline progress buffer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Doug Coleman",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "sleep": "^5.1.1"
+  }
+}
