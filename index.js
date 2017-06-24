@@ -1,25 +1,46 @@
 const sleep = require('sleep');
 
+// https://stackoverflow.com/questions/24531751/how-can-i-split-a-string-containing-emoji-into-an-array
+var emojiStringToArray = function (str) {
+  split = str.split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/);
+  arr = [];
+  for (var i = 0; i < split.length; i++) {
+    char = split[i]
+    if (char !== "") {
+      arr.push(char);
+    }
+  }
+  return arr;
+};
+
 const nums = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
+const moons = emojiStringToArray("🌑🌒🌓🌔🌕🌝🌕🌖🌗🌘🌑🌚");
+const moons2 = emojiStringToArray("🌑🌒🌓🌔🌕🌖🌗🌘");
+const smilies = emojiStringToArray("😶😐🙂😀😃😄😁😆");
+const clocks =  emojiStringToArray("🕛🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚")
+const clocks2 = emojiStringToArray("🕧🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦")
+const chicken = emojiStringToArray("🥚🐣🐥🐓🍗");
+
+const theme = chicken;
 
 function printBuffer(buffer) {
-  var wrote = 0;
+  var linesWritten = 0;
   let len = Object.keys(buffer).length;
   for (var key in buffer) {
-    let col = buffer[key];
-    let line = ' '.repeat(col) + nums[Math.min(col, nums.length - 1)];
+    let [col, state] = buffer[key];
+    let line = ' '.repeat(col) + theme[state % theme.length];
     process.stdout.write(line + '\n');
-    wrote += 1;
+    linesWritten += 1;
   }
-  return wrote;
+  return linesWritten;
 }
 
-function eraseBuffer(buffer, wrote) {
+function eraseBuffer(linesWritten) {
   var erase = '';
-  if(wrote == 0) {
+  if(linesWritten == 0) {
     erase = '\33[2K\r'; // necessary
   } else {
-    erase = '\33[2K\033[F'.repeat(wrote);
+    erase = '\33[2K\033[F'.repeat(linesWritten);
   }
   process.stdout.write(erase);
 }
@@ -35,19 +56,23 @@ function main() {
   var buffer = {};
   
   for (var i = 0; i < process.stdout.rows - 2; i++) {
-    buffer[i] = randomInt(0, nums.length);
+    let col = randomInt(0, process.stdout.columns - 2);
+    let state = randomInt(0, theme.length);
+    buffer[i] = [0, state]
   }
 
   do {
-    var wrote = printBuffer(buffer);
-    sleep.usleep(20000);
-    eraseBuffer(buffer, wrote);
+    var linesWritten = printBuffer(buffer);
+    sleep.usleep(50000);
+    eraseBuffer(linesWritten);
     var len = Object.keys(buffer).length;
     for (var key in buffer) {
-      if(buffer[key] == process.stdout.columns - 2) {
+      let [col, state] = buffer[key];
+      if(col == process.stdout.columns - 2) {
         delete buffer[key];
       } else {
-        buffer[key] = buffer[key] + 1 % 10;
+        let r = randomInt(0, 2);
+        buffer[key] = [col + r, state + 1]
       }
     }
   } while(Object.keys(buffer).length > 0)
