@@ -28,7 +28,7 @@ function printBuffer(buffer) {
   let len = Object.keys(buffer).length;
   for (var key in buffer) {
     let [col, state] = buffer[key];
-    let line = ' '.repeat(col) + theme[state % theme.length];
+    let line = ' '.repeat(Math.max(0, col)) + theme[state % theme.length];
     process.stdout.write(line + '\n');
     linesWritten += 1;
   }
@@ -36,7 +36,7 @@ function printBuffer(buffer) {
 }
 
 function eraseBuffer(linesWritten) {
-  let erase = (linesWritten == 0) ? erase = '\33[2K\r': '\33[2K\033[F'.repeat(linesWritten);
+  let erase = (linesWritten == 0) ? erase = '\33[2K\r': '\33[2K\033[F\33[2K\r'.repeat(linesWritten);
   process.stdout.write(erase);
 }
 
@@ -57,16 +57,16 @@ function main() {
 
   do {
     let linesWritten = printBuffer(buffer);
-    sleep.usleep(50000);
+    sleep.usleep(100000);
     eraseBuffer(linesWritten);
     let len = Object.keys(buffer).length;
     for (var key in buffer) {
       let [col, state] = buffer[key];
-      if(col == process.stdout.columns - 2) {
+      if(col >= process.stdout.columns - 2) {
         delete buffer[key];
       } else {
-        let r = randomInt(0, 2);
-        buffer[key] = [col + r, state + 1]
+        var r = randomInt(0, 5);
+        buffer[key] = [Math.min(col + r, process.stdout.columns - 2), state + 1]
       }
     }
   } while(Object.keys(buffer).length > 0)
