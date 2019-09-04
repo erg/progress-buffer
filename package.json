@@ -9,6 +9,6 @@
   "author": "Doug Coleman",
   "license": "Apache-2.0",
   "dependencies": {
-    "sleep": "^5.1.1"
+    "sleep": "^6.1.0"
   }
 }

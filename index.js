@@ -1,34 +1,21 @@
 const sleep = require('sleep');
 
-// https://stackoverflow.com/questions/24531751/how-can-i-split-a-string-containing-emoji-into-an-array
-var emojiStringToArray = function (str) {
-  let split = str.split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/);
-  var arr = [];
-  for (var i = 0; i < split.length; i++) {
-    let char = split[i]
-    if (char !== "") {
-      arr.push(char);
-    }
-  }
-  return arr;
-};
+const nums = [..."⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿"];
+const moons = [..."🌑🌒🌓🌔🌕🌝🌕🌖🌗🌘🌑🌚"];
+const moons2 = [..."🌑🌒🌓🌔🌕🌖🌗🌘"];
+const smilies = [..."😶😐🙂😀😃😄😁😆"];
+const clocks =  [..."🕛🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚"];
+const clocks2 = [..."🕧🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦"];
+const chicken = [..."🥚🐣🐥🐓🍗"];
 
-const nums = "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
-const moons = emojiStringToArray("🌑🌒🌓🌔🌕🌝🌕🌖🌗🌘🌑🌚");
-const moons2 = emojiStringToArray("🌑🌒🌓🌔🌕🌖🌗🌘");
-const smilies = emojiStringToArray("😶😐🙂😀😃😄😁😆");
-const clocks =  emojiStringToArray("🕛🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚")
-const clocks2 = emojiStringToArray("🕧🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦")
-const chicken = emojiStringToArray("🥚🐣🐥🐓🍗");
-
-const theme = chicken;
+const theme = nums;
 
 function printBuffer(buffer) {
-  var linesWritten = 0;
-  let len = Object.keys(buffer).length;
-  for (var key in buffer) {
-    let [col, state] = buffer[key];
-    let line = ' '.repeat(Math.max(0, col)) + theme[state % theme.length];
+  let linesWritten = 0;
+  const len = Object.keys(buffer).length;
+  for (const key in buffer) {
+    const [col, state] = buffer[key];
+    const line = ' '.repeat(Math.max(0, col)) + theme[state % theme.length];
     process.stdout.write(line + '\n');
     linesWritten += 1;
   }
@@ -36,40 +23,41 @@ function printBuffer(buffer) {
 }
 
 function eraseBuffer(linesWritten) {
-  let erase = (linesWritten == 0) ? erase = '\33[2K\r': '\33[2K\033[F\33[2K\r'.repeat(linesWritten);
+  const erase = (linesWritten == 0) ? '\33[2K\r': '\33[2K\033[F\33[2K\r'.repeat(linesWritten);
   process.stdout.write(erase);
 }
 
 // [a,b)
-function randomInt(min, max) {
-  var min = Math.ceil(min), max = Math.floor(max);
+function randomInt(min_in, max_in) {
+  const min = Math.ceil(min_in);
+  const max = Math.floor(max_in);
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function main() {
-  var buffer = {};
+  const buffer = {};
   
-  for (var i = 0; i < process.stdout.rows - 2; i++) {
-    let col = randomInt(0, process.stdout.columns - 2),
-      state = randomInt(0, theme.length);
-    buffer[i] = [0, state]
+  for (let i = 0; i < process.stdout.rows - 2; i++) {
+    const col = randomInt(0, process.stdout.columns - 2);
+    const state = randomInt(0, theme.length);
+    buffer[i] = [0, state];
   }
 
   do {
-    let linesWritten = printBuffer(buffer);
+    const linesWritten = printBuffer(buffer);
     sleep.usleep(100000);
     eraseBuffer(linesWritten);
-    let len = Object.keys(buffer).length;
-    for (var key in buffer) {
-      let [col, state] = buffer[key];
+    const len = Object.keys(buffer).length;
+    for (const key in buffer) {
+      const [col, state] = buffer[key];
       if(col >= process.stdout.columns - 2) {
         delete buffer[key];
       } else {
-        var r = randomInt(0, 5);
-        buffer[key] = [Math.min(col + r, process.stdout.columns - 2), state + 1]
+        const r = randomInt(0, 5);
+        buffer[key] = [Math.min(col + r, process.stdout.columns - 2), state + 1];
       }
     }
-  } while(Object.keys(buffer).length > 0)
+  } while(Object.keys(buffer).length > 0);
 }
 
 main();
